@@ -63,8 +63,8 @@ const translations = {
       facilities: "球场数量",
       corr: "家庭条件和球场便利度是否同向",
     },
-    chartTitle: "球场压力最高的区域",
-    chartHint: "一次只看这一张图就够了",
+    chartTitle: "球场压力和找球场便利度",
+    chartHint: "每个点代表一个区域",
     insightTitle: "当前解读",
     insightHint: "尽量用直白的话说明",
     snapshotTitle: "当前区域",
@@ -151,8 +151,8 @@ const translations = {
       facilities: "Fields",
       corr: "Do money and access move together",
     },
-    chartTitle: "Highest field pressure areas",
-    chartHint: "One focused chart for kids per field",
+    chartTitle: "Field pressure vs field access",
+    chartHint: "Each dot is one area",
     insightTitle: "Current Read",
     insightHint: "Plain-language summary",
     snapshotTitle: "Selected Area",
@@ -400,43 +400,42 @@ function buildPressureChart() {
   if (!tractsData || !pressureChartCanvas) return;
 
   const t = getText();
-  const rows = [...tractsData.features]
-    .map((feature) => feature.properties)
-    .sort((left, right) => toNumber(right.kids_per_pitch) - toNumber(left.kids_per_pitch))
-    .slice(0, 8);
-
   const activeName = normalizeName(selectedTractName);
-  const labels = rows.map((row) => row.tract_name);
-  const values = rows.map((row) => Math.round(toNumber(row.kids_per_pitch)));
-  const backgroundColor = rows.map((row) =>
-    normalizeName(row.tract_name) === activeName ? "#4d8d7d" : "rgba(207, 155, 115, 0.78)"
-  );
-  const borderColor = rows.map((row) =>
-    normalizeName(row.tract_name) === activeName ? "#2d6357" : "#bf8861"
-  );
+  const points = tractsData.features.map((feature) => {
+    const props = feature.properties;
+    const isActive = normalizeName(props.tract_name) === activeName;
+
+    return {
+      x: toNumber(props.kids_per_pitch),
+      y: toNumber(props.access_index),
+      tract: props.tract_name,
+      pointBackgroundColor: isActive ? "#4d8d7d" : "rgba(207, 155, 115, 0.75)",
+      pointBorderColor: isActive ? "#2d6357" : "#bf8861",
+      pointRadius: isActive ? 6 : 4.2,
+      pointHoverRadius: isActive ? 7 : 5.2,
+    };
+  });
 
   if (pressureChart) {
     pressureChart.destroy();
   }
 
   pressureChart = new Chart(pressureChartCanvas, {
-    type: "bar",
+    type: "scatter",
     data: {
-      labels,
       datasets: [
         {
-          data: values,
-          backgroundColor,
-          borderColor,
-          borderWidth: 1,
-          borderRadius: 8,
-          borderSkipped: false,
-          barThickness: 15,
+          data: points,
+          parsing: false,
+          pointBackgroundColor: points.map((point) => point.pointBackgroundColor),
+          pointBorderColor: points.map((point) => point.pointBorderColor),
+          pointRadius: points.map((point) => point.pointRadius),
+          pointHoverRadius: points.map((point) => point.pointHoverRadius),
+          pointBorderWidth: 1,
         },
       ],
     },
     options: {
-      indexAxis: "y",
       responsive: true,
       maintainAspectRatio: false,
       animation: false,
@@ -444,13 +443,21 @@ function buildPressureChart() {
         legend: { display: false },
         tooltip: {
           callbacks: {
-            label: (context) => `${t.fields.kidsPitch}: ${fmtNumber(context.raw)}`,
+            label: (context) => {
+              const point = context.raw;
+              return `${point.tract}: ${t.fields.kidsPitch} ${fmtNumber(point.x)}, ${t.fields.access} ${fmtNumber(point.y)}`;
+            },
           },
         },
       },
       scales: {
         x: {
           beginAtZero: true,
+          title: {
+            display: true,
+            text: t.fields.kidsPitch,
+            color: "#6d685f",
+          },
           grid: { color: "rgba(56, 49, 38, 0.08)" },
           ticks: {
             color: "#6d685f",
@@ -458,7 +465,14 @@ function buildPressureChart() {
           },
         },
         y: {
-          grid: { display: false },
+          beginAtZero: true,
+          max: 100,
+          title: {
+            display: true,
+            text: t.fields.access,
+            color: "#6d685f",
+          },
+          grid: { color: "rgba(56, 49, 38, 0.08)" },
           ticks: {
             color: "#403a32",
             font: { size: 11 },

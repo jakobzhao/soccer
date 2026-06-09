@@ -45,7 +45,7 @@ h4 {
 
 .panel {
   border: 1px solid var(--line);
-  border-radius: 24px;
+  border-radius: 0;
   background: var(--paper);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
@@ -108,7 +108,7 @@ h1 {
   display: inline-flex;
   padding: 0.18rem;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.78);
 }
 
@@ -117,7 +117,7 @@ h1 {
   background: transparent;
   color: var(--muted);
   padding: 0.42rem 0.72rem;
-  border-radius: 999px;
+  border-radius: 0;
   font: inherit;
   font-size: 0.82rem;
   cursor: pointer;
@@ -143,7 +143,7 @@ select {
   width: 100%;
   padding: 0.68rem 0.8rem;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.88);
   font: inherit;
   color: var(--ink);
@@ -169,7 +169,7 @@ select {
 .stat-grid article {
   padding: 0.62rem;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.68);
 }
 
@@ -225,7 +225,7 @@ select {
 #map {
   height: calc(100vh - 1.7rem);
   min-height: 640px;
-  border-radius: 24px;
+  border-radius: 0;
 }
 
 .map-hud {
@@ -240,7 +240,7 @@ select {
 
 .map-card {
   border: 1px solid rgba(56, 49, 38, 0.1);
-  border-radius: 18px;
+  border-radius: 0;
   background: rgba(255, 252, 247, 0.9);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
@@ -276,7 +276,7 @@ select {
 .kv-grid div {
   padding: 0.5rem 0.55rem;
   border: 1px solid rgba(56, 49, 38, 0.08);
-  border-radius: 12px;
+  border-radius: 0;
   background: var(--paper-strong);
 }
 
@@ -349,7 +349,7 @@ select {
 .maplibregl-popup-content {
   font-family: "IBM Plex Sans", sans-serif;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 0;
   box-shadow: none;
 }
 
