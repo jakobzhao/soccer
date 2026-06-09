@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>King County Youth Soccer Equity Lab</title>
+    <meta
+      name="description"
+      content="A tract-level exploratory app for youth soccer access and socioeconomic patterns in King County, WA."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://unpkg.com/maplibre-gl@4.5.0/dist/maplibre-gl.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="panel info-panel">
+        <section class="block welcome-panel">
+          <div class="welcome-head">
+            <div>
+              <p class="eyebrow" id="eyebrowText">Seattle Region · Equity Mapping</p>
+              <h1 id="titleText">King County Youth Soccer Equity Lab</h1>
+            </div>
+            <div class="lang-switch" role="group" aria-label="Language switch">
+              <button class="lang-btn is-active" id="langZh" type="button">中</button>
+              <button class="lang-btn" id="langEn" type="button">EN</button>
+            </div>
+          </div>
+          <p class="welcome-copy" id="welcomeLead"></p>
+          <p class="welcome-copy muted-copy" id="welcomeMuted"></p>
+        </section>
+
+        <section class="block controls">
+          <h2 id="controlsTitle"></h2>
+          <label for="metricSelect" id="metricLabel"></label>
+          <select id="metricSelect" aria-labelledby="metricLabel" aria-label="Map metric" title="Map metric"></select>
+
+          <label for="viewMode" id="viewLabel"></label>
+          <select id="viewMode" aria-labelledby="viewLabel" aria-label="View mode" title="View mode"></select>
+
+          <label class="checkbox" for="toggleFacilities">
+            <input
+              type="checkbox"
+              id="toggleFacilities"
+              checked
+              aria-labelledby="toggleFacilitiesLabel"
+              aria-label="Show field locations"
+              title="Show field locations"
+            />
+            <span id="toggleFacilitiesLabel"></span>
+          </label>
+        </section>
+
+        <section class="block stat-grid" aria-label="summary statistics">
+          <article>
+            <p id="tractCountLabel"></p>
+            <strong id="tractCount">-</strong>
+          </article>
+          <article>
+            <p id="facilityCountLabel"></p>
+            <strong id="facilityCount">-</strong>
+          </article>
+          <article>
+            <p id="corrLabel"></p>
+            <strong id="corrValue">-</strong>
+          </article>
+        </section>
+
+        <section class="block chart-block">
+          <div class="block-head">
+            <h3 id="chartTitle"></h3>
+            <p id="chartHint"></p>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="pressureChart" aria-label="children per field chart"></canvas>
+          </div>
+        </section>
+
+        <section class="block explanation">
+          <div class="block-head">
+            <h3 id="insightTitle"></h3>
+            <p id="insightHint"></p>
+          </div>
+          <p id="insightText"></p>
+        </section>
+      </aside>
+
+      <section class="panel map-stage">
+        <div id="map" aria-label="King County map"></div>
+        <section id="legend" class="map-card map-legend" aria-label="map legend"></section>
+        <div class="map-hud">
+          <section class="map-card map-card--snapshot">
+            <div class="map-card-head">
+              <h3 id="snapshotTitle"></h3>
+              <p id="snapshotHint"></p>
+            </div>
+            <h4 id="selectedTractName">-</h4>
+            <dl class="kv-grid kv-grid--map">
+              <div><dt id="selSesLabel"></dt><dd id="selSes">-</dd></div>
+              <div><dt id="selAccessLabel"></dt><dd id="selAccess">-</dd></div>
+              <div><dt id="selKidsPitchLabel"></dt><dd id="selKidsPitch">-</dd></div>
+              <div><dt id="selFacilityCountLabel"></dt><dd id="selFacilityCount">-</dd></div>
+              <div><dt id="selIncomeLabel"></dt><dd id="selIncome">-</dd></div>
+              <div><dt id="selPovertyLabel"></dt><dd id="selPoverty">-</dd></div>
+            </dl>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script src="https://unpkg.com/maplibre-gl@4.5.0/dist/maplibre-gl.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
