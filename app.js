@@ -24,7 +24,6 @@ const textNodes = {
   title: document.getElementById("titleText"),
   welcomeLead: document.getElementById("welcomeLead"),
   welcomeMuted: document.getElementById("welcomeMuted"),
-  controlsTitle: document.getElementById("controlsTitle"),
   metricLabel: document.getElementById("metricLabel"),
   toggleFacilitiesLabel: document.getElementById("toggleFacilitiesLabel"),
   tractCountLabel: document.getElementById("tractCountLabel"),
@@ -52,7 +51,6 @@ const translations = {
     welcomeLead:
       "这个界面用来快速看 King County 不同区域的球场够不够、找球场方不方便，以及孩子多不多。",
     welcomeMuted: "左边负责切换和解读，右边专心看地图。点地图里的区域，就能在右下角看详情。",
-    controlsTitle: "地图控制",
     metricLabel: "地图上看什么",
     toggleFacilitiesLabel: "显示球场点位",
     stats: {
@@ -128,7 +126,6 @@ const translations = {
     welcomeLead:
       "This view helps you quickly see where fields feel scarce, where getting to a field is easier, and where more kids are competing for the same space.",
     welcomeMuted: "Use the left side for switching views and reading the summary. Click any area on the map to update the detail card in the lower right.",
-    controlsTitle: "Map Controls",
     metricLabel: "What to show",
     toggleFacilitiesLabel: "Show field locations",
     stats: {
@@ -509,7 +506,6 @@ function updateStaticCopy() {
   textNodes.title.textContent = t.title;
   textNodes.welcomeLead.textContent = t.welcomeLead;
   textNodes.welcomeMuted.textContent = t.welcomeMuted;
-  textNodes.controlsTitle.textContent = t.controlsTitle;
   textNodes.metricLabel.textContent = t.metricLabel;
   textNodes.toggleFacilitiesLabel.textContent = t.toggleFacilitiesLabel;
   textNodes.tractCountLabel.textContent = t.stats.tracts;
