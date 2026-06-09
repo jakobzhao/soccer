@@ -1,5 +1,4 @@
 const metricSelect = document.getElementById("metricSelect");
-const viewMode = document.getElementById("viewMode");
 const toggleFacilities = document.getElementById("toggleFacilities");
 const tractCountEl = document.getElementById("tractCount");
 const facilityCountEl = document.getElementById("facilityCount");
@@ -27,7 +26,6 @@ const textNodes = {
   welcomeMuted: document.getElementById("welcomeMuted"),
   controlsTitle: document.getElementById("controlsTitle"),
   metricLabel: document.getElementById("metricLabel"),
-  viewLabel: document.getElementById("viewLabel"),
   toggleFacilitiesLabel: document.getElementById("toggleFacilitiesLabel"),
   tractCountLabel: document.getElementById("tractCountLabel"),
   facilityCountLabel: document.getElementById("facilityCountLabel"),
@@ -56,7 +54,6 @@ const translations = {
     welcomeMuted: "左边负责切换和解读，右边专心看地图。点地图里的区域，就能在右下角看详情。",
     controlsTitle: "地图控制",
     metricLabel: "地图上看什么",
-    viewLabel: "怎么看",
     toggleFacilitiesLabel: "显示球场点位",
     stats: {
       tracts: "区域数量",
@@ -82,21 +79,14 @@ const translations = {
       access_index: "找球场方便程度",
       kids_per_pitch: "每片球场要分担多少孩子",
     },
-    views: {
-      choropleth: "一次看一个指标",
-      bivariate: "同时看家庭条件和找球场方便程度",
-    },
     legend: {
-      title: "图例",
       byMetric: {
         ses_index: "家庭条件",
         access_index: "找球场方便程度",
         kids_per_pitch: "球场压力",
       },
-      bivariateTitle: "双指标",
       levels: ["低", "中低", "中高", "高"],
       pressure: ["压力低", "还好", "偏高", "很高"],
-      bivariateRows: ["高条件 + 高便利", "中条件 + 高便利", "高条件 + 中便利", "双低"],
     },
     popup: {
       ses: "家庭条件",
@@ -109,10 +99,6 @@ const translations = {
         ses_index: "现在颜色表示家庭条件。颜色越深，代表整体生活条件更宽裕。",
         access_index: "现在颜色表示找球场方不方便。颜色越深，代表附近更容易接触到球场。",
         kids_per_pitch: "现在颜色表示球场压力。颜色越深，代表每片球场要分担的孩子更多。",
-      },
-      mode: {
-        choropleth: "当前是单指标视图，一次只看一件事，读起来更直接。",
-        bivariate: "当前是双指标视图，可以一起看家庭条件和找球场是否方便。",
       },
       strength: { strong: "关系比较明显", medium: "关系有一点", weak: "关系不算强" },
       direction: { positive: "同向", negative: "反向" },
@@ -144,7 +130,6 @@ const translations = {
     welcomeMuted: "Use the left side for switching views and reading the summary. Click any area on the map to update the detail card in the lower right.",
     controlsTitle: "Map Controls",
     metricLabel: "What to show",
-    viewLabel: "How to read it",
     toggleFacilitiesLabel: "Show field locations",
     stats: {
       tracts: "Areas",
@@ -170,21 +155,14 @@ const translations = {
       access_index: "Ease of reaching a field",
       kids_per_pitch: "How many kids each field serves",
     },
-    views: {
-      choropleth: "One measure at a time",
-      bivariate: "Family resources + field access together",
-    },
     legend: {
-      title: "Legend",
       byMetric: {
         ses_index: "Family resources",
         access_index: "Field access",
         kids_per_pitch: "Field pressure",
       },
-      bivariateTitle: "Two measures",
       levels: ["Low", "Lower-mid", "Upper-mid", "High"],
       pressure: ["Low pressure", "Okay", "Higher", "Very high"],
-      bivariateRows: ["High money + high access", "Mid money + high access", "High money + mid access", "Low + low"],
     },
     popup: {
       ses: "Family resources",
@@ -197,10 +175,6 @@ const translations = {
         ses_index: "The colors now show family resources. Darker areas are generally better off.",
         access_index: "The colors now show how easy it is to reach a field. Darker areas have better field access nearby.",
         kids_per_pitch: "The colors now show field pressure. Darker areas mean more kids are sharing each field.",
-      },
-      mode: {
-        choropleth: "This is the simple view, so you are reading one measure at a time.",
-        bivariate: "This is the combined view, so you can compare family resources and field access together.",
       },
       strength: { strong: "The relationship is fairly clear", medium: "There is some relationship", weak: "The relationship is fairly weak" },
       direction: { positive: "they move together", negative: "they move in opposite directions" },
@@ -344,30 +318,6 @@ function pearson(arrX, arrY) {
 
 function tractFillExpression() {
   const metric = metricSelect.value;
-  const mode = viewMode.value;
-
-  if (mode === "bivariate") {
-    return [
-      "case",
-      ["all", [">", ["to-number", ["get", "ses_index"]], 65], [">", ["to-number", ["get", "access_index"]], 65]],
-      "#5c9083",
-      ["all", [">", ["to-number", ["get", "ses_index"]], 65], [">", ["to-number", ["get", "access_index"]], 45]],
-      "#a79f8f",
-      ["all", [">", ["to-number", ["get", "ses_index"]], 65]],
-      "#dccbb8",
-      ["all", [">", ["to-number", ["get", "ses_index"]], 45], [">", ["to-number", ["get", "access_index"]], 65]],
-      "#87ada3",
-      ["all", [">", ["to-number", ["get", "ses_index"]], 45], [">", ["to-number", ["get", "access_index"]], 45]],
-      "#d2d0c7",
-      [">", ["to-number", ["get", "ses_index"]], 45],
-      "#ece3d7",
-      [">", ["to-number", ["get", "access_index"]], 65],
-      "#c1ddd6",
-      [">", ["to-number", ["get", "access_index"]], 45],
-      "#e4efeb",
-      "#f7f4ee",
-    ];
-  }
 
   if (metric === "ses_index") {
     return ["step", ["to-number", ["get", metric]], "#edf1ef", 45, "#c0d8d0", 60, "#8db7ab", 75, "#5d8f81"];
@@ -383,17 +333,11 @@ function tractFillExpression() {
 function renderSelectOptions() {
   const t = getText();
   const previousMetric = metricSelect.value || "kids_per_pitch";
-  const previousView = viewMode.value || "choropleth";
 
   metricSelect.innerHTML = Object.entries(t.metrics)
     .map(([value, label]) => `<option value="${value}">${label}</option>`)
     .join("");
   metricSelect.value = previousMetric;
-
-  viewMode.innerHTML = Object.entries(t.views)
-    .map(([value, label]) => `<option value="${value}">${label}</option>`)
-    .join("");
-  viewMode.value = previousView;
 }
 
 function buildPressureChart() {
@@ -485,18 +429,11 @@ function buildPressureChart() {
 
 function buildLegend() {
   const t = getText();
-  const mode = viewMode.value;
   const metric = metricSelect.value;
   let subtitle = t.legend.byMetric[metric];
   let rows;
 
-  if (mode === "bivariate") {
-    subtitle = t.legend.bivariateTitle;
-    rows = ["#5c9083", "#87ada3", "#a79f8f", "#f7f4ee"].map((color, index) => ({
-      c: color,
-      t: t.legend.bivariateRows[index],
-    }));
-  } else if (metric === "kids_per_pitch") {
+  if (metric === "kids_per_pitch") {
     rows = ["#f4ebe2", "#e2c5ae", "#cf9b73", "#a36a46"].map((color, index) => ({
       c: color,
       t: t.legend.pressure[index],
@@ -534,7 +471,6 @@ function setInsightText() {
 
   insightTextEl.textContent = [
     t.insight.metric[metricSelect.value],
-    t.insight.mode[viewMode.value],
     `${t.insight.strength[strengthKey]}，${t.insight.direction[directionKey]}（r = ${corr.toFixed(2)}）。`,
     t.insight.closing,
   ].join(" ");
@@ -575,7 +511,6 @@ function updateStaticCopy() {
   textNodes.welcomeMuted.textContent = t.welcomeMuted;
   textNodes.controlsTitle.textContent = t.controlsTitle;
   textNodes.metricLabel.textContent = t.metricLabel;
-  textNodes.viewLabel.textContent = t.viewLabel;
   textNodes.toggleFacilitiesLabel.textContent = t.toggleFacilitiesLabel;
   textNodes.tractCountLabel.textContent = t.stats.tracts;
   textNodes.facilityCountLabel.textContent = t.stats.facilities;
@@ -785,7 +720,6 @@ async function loadData() {
 }
 
 metricSelect.addEventListener("change", updateMapStyling);
-viewMode.addEventListener("change", updateMapStyling);
 toggleFacilities.addEventListener("change", updateMapStyling);
 langZhBtn.addEventListener("click", () => setLanguage("zh"));
 langEnBtn.addEventListener("click", () => setLanguage("en"));
