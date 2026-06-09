@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>US Youth Soccer Equity Lab</title>
+    <meta
+      name="description"
+      content="A nationwide real-data map for studying youth soccer access, inequality, and field pressure in the United States."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://unpkg.com/maplibre-gl@4.5.0/dist/maplibre-gl.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      #usMap {
+        height: calc(100vh - 1.7rem);
+        min-height: 640px;
+        border-radius: 0;
+      }
+
+      .method-note {
+        margin-top: 0.55rem;
+        padding: 0.72rem;
+        border: 1px solid rgba(56, 49, 38, 0.08);
+        background: rgba(255, 255, 255, 0.7);
+        font-size: 0.82rem;
+        line-height: 1.5;
+        color: var(--muted);
+      }
+
+      .method-note strong {
+        color: var(--ink);
+      }
+
+      .kv-grid--us {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .legend-caption {
+        margin-top: 0.45rem;
+        font-size: 0.72rem;
+        color: var(--muted);
+      }
+
+      .map-card--snapshot .snapshot-source {
+        margin-top: 0.65rem;
+        padding-top: 0.6rem;
+        border-top: 1px solid rgba(56, 49, 38, 0.08);
+        font-size: 0.76rem;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="panel info-panel">
+        <section class="block welcome-panel">
+          <div class="welcome-head">
+            <div>
+              <p class="eyebrow">United States · Real Data Soccer Access</p>
+              <h1>US Youth Soccer Equity Lab</h1>
+            </div>
+          </div>
+          <p class="welcome-copy">
+            这页现在改成真实数据版。它用全美州级边界、ACS 社会经济指标，以及 OpenStreetMap 里的 soccer pitch 设施计数，先做一个全国基线图。
+          </p>
+          <p class="welcome-copy muted-copy">
+            这不是最终的 tract + travel-time 模型，而是一个真实全国 inventory baseline：先看哪里儿童多、球场多寡如何、州级资源压力差异有多大，再为后续更细尺度研究定方向。
+          </p>
+        </section>
+
+        <section class="block controls">
+          <label for="metricSelect">地图上看什么</label>
+          <select id="metricSelect" aria-label="US metric selector" title="US metric selector"></select>
+
+          <label class="checkbox" for="toggleLabels">
+            <input
+              type="checkbox"
+              id="toggleLabels"
+              aria-label="Show state abbreviations"
+              title="Show state abbreviations"
+            />
+            <span>显示州缩写</span>
+          </label>
+
+          <div class="method-note">
+            <strong>方法提醒：</strong> 当前是真实州级基线，不是最终出行可达性模型。全国静态页先用州级真实数据落地，后续再把 tract 和 catchment 接上去。
+          </div>
+        </section>
+
+        <section class="block stat-grid" aria-label="national summary statistics">
+          <article>
+            <p>州数量</p>
+            <strong id="stateCount">-</strong>
+          </article>
+          <article>
+            <p>soccer 场地总数</p>
+            <strong id="facilityCount">-</strong>
+          </article>
+          <article>
+            <p>SES 和场地机会是否同向</p>
+            <strong id="corrValue">-</strong>
+          </article>
+        </section>
+
+        <section class="block chart-block">
+          <div class="block-head">
+            <h3>球场压力和球场供给</h3>
+            <p>每个点代表一个州</p>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="pressureChart" aria-label="US state pressure chart"></canvas>
+          </div>
+        </section>
+
+        <section class="block explanation">
+          <div class="block-head">
+            <h3>当前解读</h3>
+            <p>真实全国基线</p>
+          </div>
+          <p id="insightText"></p>
+        </section>
+
+        <section class="block">
+          <div class="block-head">
+            <h3>指标说明</h3>
+            <p>州级真实数据</p>
+          </div>
+          <ul class="compact-list">
+            <li>`Family resources` 来自州级收入和贫困率的综合指数</li>
+            <li>`Field access` 用每万名 5-17 岁儿童对应的 soccer pitch 数量做标准化</li>
+            <li>`Field pressure` 表示每一片 soccer pitch 需要分担多少儿童</li>
+            <li>真实设施来自 OSM，适合做全国 inventory baseline，不等同于完整出行可达性</li>
+          </ul>
+        </section>
+      </aside>
+
+      <section class="panel map-stage">
+        <div id="usMap" aria-label="United States soccer access map"></div>
+        <section id="legend" class="map-card map-legend" aria-label="map legend"></section>
+        <div class="map-hud">
+          <section class="map-card map-card--snapshot">
+            <div class="map-card-head">
+              <h3>当前州</h3>
+              <p>点击地图更新</p>
+            </div>
+            <h4 id="selectedStateName">-</h4>
+            <dl class="kv-grid kv-grid--us">
+              <div><dt>家庭条件</dt><dd id="selSes">-</dd></div>
+              <div><dt>球场机会</dt><dd id="selAccess">-</dd></div>
+              <div><dt>球场压力</dt><dd id="selPressure">-</dd></div>
+              <div><dt>场地数量</dt><dd id="selFacilityCount">-</dd></div>
+              <div><dt>儿童数量</dt><dd id="selKids">-</dd></div>
+              <div><dt>每万儿童球场数</dt><dd id="selFacilitiesPer10k">-</dd></div>
+              <div><dt>每片球场对应儿童</dt><dd id="selKidsPerFacility">-</dd></div>
+              <div><dt>收入中位数</dt><dd id="selIncome">-</dd></div>
+              <div><dt>贫困率</dt><dd id="selPoverty">-</dd></div>
+            </dl>
+            <div class="snapshot-source" id="snapshotSource">-</div>
+          </section>
+        </div>
+      </section>
+    </main>
+    <script src="https://unpkg.com/maplibre-gl@4.5.0/dist/maplibre-gl.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script src="us.js"></script>
+  </body>
+</html>

@@ -30,10 +30,17 @@ Run:
 node scripts/update_real_data.mjs
 ```
 
+For the nationwide state baseline, run:
+
+```bash
+node scripts/update_us_real_data.mjs
+```
+
 The script rebuilds:
 
 - `data/tracts.geojson` (King County tract geometry + computed indicators)
 - `data/facilities.geojson` (soccer facilities from OSM Overpass)
+- `data/us_states.geojson` (US state geometry + ACS indicators + OSM soccer facility counts)
 
 ## Publish with GitHub Pages
 
